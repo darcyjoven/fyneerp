@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"image/color"
+	"strconv"
 )
 
 type Config struct {
@@ -25,40 +26,66 @@ func (app *Config) MakeUI(win fyne.Window, appType int) fyne.CanvasObject {
 
 	// ToolBar 设置标准ToolBar
 	rec := canvas.NewRectangle(color.Black)
-	cir := canvas.NewRectangle(color.Opaque)
 	rec.SetMinSize(fyne.NewSize(200, 300))
-	cir.SetMinSize(fyne.NewSize(200, 300))
+	var data [][]string
+	for i := 0; i < 100; i++ {
+		s := strconv.Itoa(i)
+		data = append(data, []string{s, s, s, s})
+	}
+	cir := widget.NewTable(
+		func() (int, int) {
+			return len(data), len(data[0])
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("")
+		},
+		func(id widget.TableCellID, object fyne.CanvasObject) {
+			object.(*widget.Label).SetText(data[id.Row][id.Col])
+		},
+	)
 
-	content := container.NewStack(
-		container.New(
-			layout.NewVBoxLayout(),
-			container.NewVBox(
-				container.NewHBox(
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-				), // toolBar
-				container.NewGridWrap(
-					fyne.NewSize(100, 20),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-					widget.NewButton("ok", func() {}),
-				), // DIT toolBar
-			),
-			container.NewVSplit(
-				rec, // 主要内容上
-				cir, // 主要内容下
-			),
-			container.NewHBox(
-				widget.NewLabel("staut is ok "),
-				widget.NewLabel("staut is not ok "),
-			), // footer
+	// Border 布局
+	ccc := container.NewBorder(
+		widget.NewLabel("www"),
+		nil,
+		nil,
+		//, // 主要内容下
+		nil,
+		cir,
+	)
+	toolBar := container.NewVBox(
+		container.NewHBox(
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+		), // toolBar
+		container.NewGridWrap(
+			fyne.NewSize(100, 20),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+			widget.NewButton("ok", func() {}),
+		), // DIT toolBar
+	)
+	footer := container.NewHBox(
+		container.NewVBox(
+			layout.NewSpacer(),
+			widget.NewLabel("staut is ok "),
+		),
+		container.NewVBox(
+			layout.NewSpacer(),
+			widget.NewLabel("staut is ok "),
 		),
 	)
 
+	content := container.New(
+		layout.NewBorderLayout(toolBar, footer, nil, nil),
+		toolBar,
+		footer,
+		ccc,
+	)
 	return content
 }
 
