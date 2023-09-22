@@ -1,20 +1,27 @@
 package ui
 
 import (
+	ddd "erp/data"
+	"erp/ui/footer"
 	"erp/ui/menu"
 	"erp/ui/title"
+	"erp/ui/toolbar"
+	"erp/ui/top"
+	"strconv"
+
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"image/color"
-	"strconv"
 )
 
 type Config struct {
-	win    *fyne.Window
-	winCfg *menu.Menu
+	win     *fyne.Window
+	winCfg  *menu.Menu
+	toolBar *toolbar.ToolBar
+	footer  *footer.Footer
+	top     *top.Top
 }
 
 // MakeUI UI设置
@@ -24,9 +31,6 @@ func (app *Config) MakeUI(win fyne.Window, appType int) fyne.CanvasObject {
 	//	设置标题
 	title.Title(win)
 
-	// ToolBar 设置标准ToolBar
-	rec := canvas.NewRectangle(color.Black)
-	rec.SetMinSize(fyne.NewSize(200, 300))
 	var data [][]string
 	for i := 0; i < 100; i++ {
 		s := strconv.Itoa(i)
@@ -45,40 +49,33 @@ func (app *Config) MakeUI(win fyne.Window, appType int) fyne.CanvasObject {
 	)
 
 	// Border 布局
-	ccc := container.NewBorder(
-		widget.NewLabel("www"),
-		nil,
-		nil,
-		//, // 主要内容下
-		nil,
+	ccc := container.New(
+		layout.NewBorderLayout(
+			app.top.New(),
+			cir,
+			nil,
+			nil,
+		),
+		app.top.New(),
+		nil, nil, nil,
+		app.top.New(),
+		cir,
 		cir,
 	)
-	toolBar := container.NewVBox(
-		container.NewHBox(
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-		), // toolBar
-		container.NewGridWrap(
-			fyne.NewSize(100, 20),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-			widget.NewButton("ok", func() {}),
-		), // DIT toolBar
-	)
-	footer := container.NewHBox(
-		container.NewVBox(
-			layout.NewSpacer(),
-			widget.NewLabel("staut is ok "),
-		),
-		container.NewVBox(
-			layout.NewSpacer(),
-			widget.NewLabel("staut is ok "),
-		),
-	)
+	app.toolBar = &toolbar.ToolBar{
+		Standard: struct {
+			Operation map[string]func()
+			Print     map[string]func()
+			Paging    map[string]func()
+			Quit      func()
+		}{},
+	}
+	app.footer = &footer.Footer{}
+	toolBar := app.toolBar.New(ddd.Form, nil)
+
+	s := "123"
+	ps := binding.BindString(&s)
+	footer := app.footer.New(ps)
 
 	content := container.New(
 		layout.NewBorderLayout(toolBar, footer, nil, nil),
@@ -89,7 +86,7 @@ func (app *Config) MakeUI(win fyne.Window, appType int) fyne.CanvasObject {
 	return content
 }
 
-// SetMenu 设置菜单,可选项
+// SetMenu 设置菜单,可选项-
 func (app *Config) SetMenu(value map[string][]string, fn map[string]func()) {
 	var m menu.Menu
 	m.New(*app.win, value, fn)

@@ -1,10 +1,12 @@
 package toolbar
 
 import (
+	"erp/data"
+	"testing"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/test"
 	"fyne.io/fyne/v2/theme"
-	"testing"
 )
 
 func TestToolBar_New(t *testing.T) {
@@ -13,6 +15,7 @@ func TestToolBar_New(t *testing.T) {
 	toolBar := new(ToolBar)
 
 	w.SetContent(toolBar.New(
+		data.Form,
 		map[fyne.Resource]func(){
 			theme.ContentAddIcon():     func() {},
 			theme.DocumentCreateIcon(): func() {},
